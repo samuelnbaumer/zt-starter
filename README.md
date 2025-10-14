@@ -24,13 +24,25 @@ Students will extend this code to explore:
 
 ## 🧩 Architecture Overview
 
-```
-[ User / Client ]
-        |
-        v
-   [ IdP Service ] --(JWT)--> [ Resource API ] --(allow/deny/challenge)--> [ User ]
-        \
-         \-- optional (no IdP) --> [ Local Service ] --(local session)--> [ User ]
+```mermaid
+flowchart LR
+    A[User / Client] -->|Login request| B[IdP Service]
+    B -->|JWT token| C[Resource API]
+    C -->|Access decision| A
+    A -->|Direct auth| D[Local Service]
+    D -->|Local session token| A
+
+    %% Styling
+    classDef idp fill:#009688,stroke:#00695c,color:#fff;
+    classDef resource fill:#03a9f4,stroke:#0277bd,color:#fff;
+    classDef local fill:#8bc34a,stroke:#558b2f,color:#fff;
+
+    class B idp;
+    class C resource;
+    class D local;
+
+    %% Caption
+    %% The diagram illustrates centralised vs. local authentication flows in a Zero Trust setup.
 ```
 
 **Services**
