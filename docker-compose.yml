@@ -1,0 +1,14 @@
+services:
+  idp:
+    build: ./idp
+    env_file: ./idp/.env
+    ports: ["8001:8000"]
+  resource_api:
+    build: ./resource_api
+    env_file: ./resource_api/.env
+    ports: ["8002:8000"]
+    depends_on: [idp]
+  local_service:
+    build: ./local_service
+    env_file: ./local_service/.env
+    ports: ["8003:8000"]
