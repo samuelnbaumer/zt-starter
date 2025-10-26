@@ -81,7 +81,7 @@ A valid JWT is issued by the IdP and verified by the Resource API.
 
 ---
 
-## 🧠 What You’ll Do
+## 🧠 What You'll Do
 
 In your assignment, you will:
 
@@ -89,6 +89,94 @@ In your assignment, you will:
 - Add **contextual verification logic** in `resource_api/context.py`.  
 - Implement a **decentralised local authentication** method in `local_service/`.  
 - Document and reflect on the **trade-offs** between the two approaches.
+
+## 🔧 What Was Added
+
+### IdP Service
+- Dynamic risk scoring based on user, device, and time
+- Additional JWT claims: `device_id`, `department`, `risk_score`, `device_trust_level`
+
+### Resource API
+- Time-based access control (business hours 7-19)
+- Device trust verification
+- Admin-only endpoints
+- Risk-based MFA challenges
+
+### Local Service
+- Independent local authentication
+- Cookie-based sessions
+- Local risk assessment
+
+## Testing
+
+For testing purposes we added a **test_scenarios.sh** script that can be run. Also please see the following examples:
+
+#### Low-Risk User (Analyst)
+```bash
+curl -X POST http://localhost:8001/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"analyst","password":"analyst","device_id":"mac-001"}'
+```
+
+#### High-Risk User (Contractor)
+```bash
+curl -X POST http://localhost:8001/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"contractor","password":"contractor","device_id":"unknown-device"}'
+```
+
+#### Admin Access
+```bash
+curl -X POST http://localhost:8001/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin","device_id":"mac-001"}'
+```
+
+### Testing Contextual Verification
+
+#### Check User Status
+```bash
+TOKEN=$(curl -sS -X POST http://localhost:8001/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"analyst","password":"analyst","device_id":"mac-001"}' \
+  | jq -er '.access_token')
+
+curl -sS http://localhost:8002/status \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+#### Test Sensitive Endpoints
+```bash
+# Admin endpoint (requires admin role)
+curl -sS http://localhost:8002/admin \
+  -H "Authorization: Bearer $TOKEN" | jq .
+
+# Sensitive data endpoint
+curl -sS http://localhost:8002/sensitive \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+### Testing Local Authentication
+
+#### Local Login
+```bash
+curl -X POST http://localhost:8003/local-login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"local","password":"local","device_id":"local-laptop"}' \
+  -c cookies.txt
+```
+
+#### Access Local Resources
+```bash
+curl -sS http://localhost:8003/local-resource \
+  -b cookies.txt | jq .
+```
+
+#### Check Local Status
+```bash
+curl -sS http://localhost:8003/local-status \
+  -b cookies.txt | jq .
+```
 
 ---
 
