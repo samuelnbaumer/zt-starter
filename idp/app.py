@@ -79,3 +79,4 @@ def login(inp: LoginIn):
     
     token = jwt.encode(claims, JWT_SECRET, algorithm=JWT_ALG)
     return {"access_token": token, "token_type": "bearer", "risk_score": final_risk_score}
+    #this is a comment for my fellow group members who said they will check an review what i've done. Please mention this line to me in teams if you been here ;)

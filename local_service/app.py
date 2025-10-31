@@ -181,3 +181,4 @@ def local_logout(req: Request, resp: Response):
     
     resp.delete_cookie("local_session")
     return {"status": "logged_out"}
+    #this is a comment for my fellow group members who said they will check an review what i've done. Please mention this line to me in teams if you been here ;)
